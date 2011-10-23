@@ -5,6 +5,7 @@ require "sinatra"
 require "haml"
 
 require "tire"
+$: << File.expand_path(File.dirname(__FILE__))
 require "cuisine/elasticsearch"
 
 __DIR__ = File.expand_path(File.dirname(__FILE__))

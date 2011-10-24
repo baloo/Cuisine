@@ -2,24 +2,24 @@ Cuisine.controllers :search do
   get "/" do
     render 'search/index'
   end
-  # get :index, :map => "/foo/bar" do
-  #   session[:foo] = "bar"
-  #   render 'index'
-  # end
 
-  # get :sample, :map => "/sample/url", :provides => [:any, :js] do
-  #   case content_type
-  #     when :js then ...
-  #     else ...
-  # end
+  post "/search" do
+    criterias = {}
+    criterias[:string] = {}
+    criterias[:updatedonly] = false
 
-  # get :foo, :with => :id do
-  #   "Maps to url '/foo/#{params[:id]}'"
-  # end
+    criterias[:string][:nodename] = params[:nodename] if params[:chk_nodename]
 
-  # get "/example" do
-  #   "Hello world!"
-  # end
+    criterias[:string][:updated_resources] = params[:updated_resources] if params[:chk_updated_resources]
 
-  
+    criterias[:string][:diffs] = params[:diffs] if params[:diffs]
+
+    criterias[:updatedonly] = true if params[:chk_updatedonly]
+
+    @search_params=criterias
+    @results = Search.search(:criterias => criterias)
+    render 'search/index'
+  end
+
+
 end

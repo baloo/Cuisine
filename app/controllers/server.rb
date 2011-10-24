@@ -1,16 +1,18 @@
 Cuisine.controllers :server do
+
   # Display a mashup of all resources
   get "/" do
-    updatedonly=false
+    criterias = {}
+
     if params[:updatedonly] == "true" then
-      updatedonly=true
+      criterias[:updatedonly] = true
     end
-#    begin
-#      @latest = es_search_limited(nb=20,hostname="*",filter_updated=updatedonly)
-#      haml :index
-#    rescue Errno::ECONNREFUSED
-#      raise ES::ESUnavailable, "foo"
-#    end
+
+    @latest = Server.search_host(
+      :limit => 20,
+      :criterias => criterias)
+
+    render 'server/index'
   end
-  
+
 end

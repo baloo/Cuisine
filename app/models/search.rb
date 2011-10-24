@@ -1,18 +1,19 @@
 # Do some monkey patching ... i really like map
 class Hash
-
-  def map(&block)
-    mapped_hash = {}
-    self.each do |key, value|
-      mapped_hash[key] = yield value
-    end
-    mapped_hash
-  end
-
+#
+#  def map(&block)
+#    mapped_hash = {}
+#    #self.each do |key, value|
+#    #  #puts value
+#    #  #mapped_hash[key] = yield value
+#    #end
+#    mapped_hash
+#  end
+#
   def map_list(&block)
     mapped_hash = []
     self.each do |key, value|
-      mapped_hash.push(yield key, value)
+      mapped_hash.push yield key, value
     end
     mapped_hash
   end
@@ -23,7 +24,7 @@ class Search
   class Unavailable < Exception
   end
 
-  def map2hash(s)
+  def self.map2hash(s)
     rslt=s.results.map { |rslt| rslt.to_hash }
 
     # turn the diff into a hash
@@ -36,7 +37,8 @@ class Search
     rslt
   end
 
-  def search(criterias, limit = 100)
+  def self.search(criterias, limit = 100)
+    criterias[:string] = Hash.new if not criterias[:string]
     str_query = criterias[:string].map_list { |k,v|
       # do we have a wildcard ? change ES syntax
       if v.include?("*") then
@@ -46,16 +48,27 @@ class Search
       end
     }.join(" AND ")
 
-    s=Tire.search do
-      query { string str_query }
-      sort { by :start_time, 'desc' }
-      if criterias[:updatedonly] then
-        filter :exists, :field => "updated_resources"
-      end
+    begin
+      # Gets back proc as a single variable
+      myquery = criterias[:query]
+      s=Tire.search do
+        # Pass querystring if builded
+        query { string str_query } if criterias[:string]
 
-      size limit
+        # Pass proc directly if set
+        query &myquery if criterias[:query]
+
+        sort { by :start_time, 'desc' }
+        if criterias[:updatedonly] then
+          filter :exists, :field => "updated_resources"
+        end
+
+        size limit
+      end
+    rescue Errno::ECONNREFUSED
+      raise Search::Unavailable, "Elasticsearch is not available"
     end
 
-    map2hash(s)
+    self.map2hash(s)
   end
 end

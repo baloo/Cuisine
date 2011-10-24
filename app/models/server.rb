@@ -1,14 +1,14 @@
-class Server < Search do
-  def search_host(hostname = Nil, limit =  15, criterias = {}) 
+class Server < Search
+
+  def self.search_host(hostname = nil, limit = 15, criterias = {})
+    criterias[:string] = Hash.new if not criterias[:string]
     if hostname then
       criterias[:string][:nodename] = hostname
     else
       criterias[:string][:nodename] = '*'
     end
 
-    search(criterias, limit=limit)
+    self.search(criterias, limit=limit)
   end
-
-
 
 end

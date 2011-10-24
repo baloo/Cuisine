@@ -28,6 +28,21 @@
 Padrino.configure_apps do
   # enable :sessions
   set :session_secret, 'bf04f5ac2e179acd5732ffb598dff612cde2271e064ae2bc382d78b396110380'
+
+  set :stomp_queue, {
+    :login => 'foo',
+    :passcode => 'bar',
+    :host => 'localhost',
+    :port => 61613
+    }
+
+  set :queue2es, {
+    :debug => true
+    }
+
+  Tire::Configuration.reset({
+    :url => 'http://localhost:9200'
+  })
 end
 
 # Mounts the core application for this project

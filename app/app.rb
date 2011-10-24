@@ -60,8 +60,8 @@ class Cuisine < Padrino::Application
     redirect('/server')
   end
 
-  #error ES::ESUnavailable do
-  #  render 'errors/503'
-  #end
+  error Search::Unavailable do
+    render 'errors/503'
+  end
 
 end

@@ -1,6 +1,9 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env rackup
+# encoding: utf-8
 
-$: << File.expand_path(File.dirname(__FILE__))
+# This file can be used to start Padrino,
+# just execute it from the command line.
 
-require 'cuisine'
-run Sinatra::Application
+require File.expand_path("../config/boot.rb", __FILE__)
+
+run Padrino.application

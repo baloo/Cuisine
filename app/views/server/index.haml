@@ -1,0 +1,46 @@
+- @latest.each do |run|
+- run_id = run[:id]
+  %div{:id => run_id, :class => "modal hide fade"}
+    %div{:class => "modal-header"}
+      %h3 Details for #{run[:nodename]}
+    %div{:class => "modal-body"}
+      %h4 
+        Modified resources :
+        - if run[:updated_resources].empty? then
+          %span{:class => "notice label"} No resources updated
+        - else
+        %p
+        - run[:updated_resources].each do |resource|
+          %li
+            #{resource}
+            - unless run[:diffs][resource].nil?
+              %pre                          |
+                #{run[:diffs][resource]}    |
+      %h4
+        Run duration : #{sprintf("%.2f", run[:elapsed_time])}s
+    %div{:class => "modal-footer"}
+      %a{:href => "#", :class => "btn alert close"} OK
+
+
+%div{:class => "row"}
+  %div{:class => "span10"}
+    %h2
+      The #{@latest.count} latest runs
+    - @latest.each do |run|
+      - run_id = run[:id]
+      - nodename = run[:nodename]
+      - ago = (Time.now.to_i - (Time.parse(run[:end_time])).to_i) / 60
+      %li
+        #{nodename} (#{ago} minutes ago) - |
+        %a{:"data-controls-modal" => run_id, :"data-backdrop" => "true", :"data-keyboard" => "true", :class => "danger", :href => "#"}
+          quick view
+        \-
+        %a{:href => "/run/#{run_id}" }
+          detailed view
+
+%p
+  %div{:class => "row"}
+    %form{:method => "get"}
+      %input{:type => "checkbox", :name=> "updatedonly", :value => "true"} |
+      Filter out runs with no resources updated                            |
+      %input{:type => "submit", :value => "Go", :class => "btn primary small", :action => "submit"}

@@ -7,14 +7,19 @@ require "haml"
 require "tire"
 $: << File.expand_path(File.dirname(__FILE__))
 require "cuisine/elasticsearch"
+require "cuisine/config"
 
 __DIR__ = File.expand_path(File.dirname(__FILE__))
 
 set :public, __DIR__ + '/public'
 set :views,  __DIR__ + '/templates'
 
-template :layout do 
+template :layout do
   File.read('templates/layout.haml')
+end
+
+before do
+  @config=load_config("config/cuisine.yml")
 end
 
 get "/" do
@@ -22,7 +27,7 @@ get "/" do
   if params[:updatedonly] == "true" then
     updatedonly=true
   end
-  @latest = es_search_limited(nb=20,hostname="*",filter_updated=updatedonly)
+  @latest = es_search_limited(nb=@config["homepage_hosts"],hostname=@config["homepage_filter"],filter_updated=updatedonly)
   haml :index
 end
 
@@ -35,15 +40,15 @@ post "/search" do
   criterias[:string] = {}
   criterias[:updatedonly] = false
 
-  if params[:chk_nodename] 
+  if params[:chk_nodename]
     criterias[:string][:nodename] = params[:nodename]
   end
-  
-  if params[:chk_updated_resources] 
+
+  if params[:chk_updated_resources]
     criterias[:string][:updated_resources] = params[:updated_resources]
   end
 
-  if params[:chk_diffs] 
+  if params[:chk_diffs]
     criterias[:string][:diffs] = params[:diffs]
   end
 
@@ -51,7 +56,7 @@ post "/search" do
     criterias[:updatedonly] = true
   end
 
-  @search_params=criterias  
+  @search_params=criterias
   @results = es_search_criterias(criterias=criterias)
   haml :search
 end
@@ -61,7 +66,7 @@ get "/about" do
 end
 
 get "/host/:hostname" do
-  @infos = es_search_limited(nb=15, hostname=params[:hostname])
+  @infos = es_search_limited(nb=@config["results_hosts"], hostname=params[:hostname])
   haml :host
 end
 

@@ -1,5 +1,5 @@
 desc 'Load data from stomp queue to elasticsearch'
-task :queue2es => :environment do
+task [:cuisine, :queue2es] => :environment do
 
   # Load requirements
   require "rubygems"
